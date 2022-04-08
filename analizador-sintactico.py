@@ -6,8 +6,6 @@ def GUI():
     noTerminales = ["E", "E'", "T", "T'", "F"]
     terminales = ["+", "*", "(", ")", "e", "id"]
     simboloInicial = "E"
-    pila = ["$"]
-    pila.append(simboloInicial)
     M = {
         "E": {
             "id": ["T", "E'"],
@@ -61,6 +59,8 @@ def GUI():
         w = TokenText.get().split(" ")  # Obtiene: "id + id * id"
         w.append("$") # w$
 
+        pila = ["$"]
+        pila.append(simboloInicial)
         ae = w[0] # apunta ae al primer simbolo de w$
         X = ""
         n = len(w) # id + id * id $
