@@ -1,64 +1,37 @@
+from ast import Delete
+import linecache
+import os
+import re
 from tkinter import *
 from tkinter import filedialog
+import json
+from turtle import clone
 
-def GUI():
 
-    noTerminales = ["E", "E'", "T", "T'", "F"]
-    terminales = ["+", "*", "(", ")", "e", "id"]
-    simboloInicial = "E"
-    M = {
-        "E": {
-            "id": ["T", "E'"],
-            "+": "",
-            "*": "",
-            "(": ["T", "E'"],
-            ")": "",
-            "$": ""
-        },
-        "E'": {
-            "id": "",
-            "+": ["+", "T", "E'"],
-            "*": "",
-            "(": "",
-            ")": ["e"],
-            "$": ["e"]
-        },
-        "T": {
-            "id": ["F", "T'"],
-            "+": "",
-            "*": "",
-            "(": ["F", "T'"],
-            ")": "",
-            "$": ""
-        },
-        "T'": {
-            "id": "",
-            "+": ["e"],
-            "*": ["*", "F", "T'"],
-            "(": "",
-            ")": ["e"],
-            "$": ["e"]
-        },
-        "F": {
-            "id": ["id"],
-            "+": "",
-            "*": "",
-            "(": ["(", "E", ")"],
-            ")": "",
-            "$": ""
-        }
-    }
+def GUI():    
+    terminales = ["$", "interrogacion","plural","que","una","el","su","un","estar","encendido","a","yo","usted","tema","conexion","internet","bombillo","router","servicio","mantenimiento","no_pasado","colaborar","tener","desear","en","de"]
+    simboloInicial = "O"
 
-    def browseFiles(): 
-        fileRoute = filedialog.askopenfilename(initialdir = "/", title = "Select a File", filetypes = (("Text files", "*.txt*"), ("all files", "*.*"))) 
-        ExamineRoute.configure(text=fileRoute) 
+    def buscar_table():         #abre el .json con la informacion
+        with open(ExamineRoute.cget("text"), encoding='utf-8-sig') as json_file:
+            return json.load(json_file)    
+
+    def browseFiles():                  
+        rutfichero = filedialog.askopenfilename(initialdir = "/",title = "Select a File")
+        ExamineRoute.configure(text=rutfichero) 
+
+    def getRouteTAS():
+        w = TokenText.get().split(" ")  # Obtiene: oracion
+        return w
 
     def analizador():
+        M = buscar_table()
         CmpResult.delete('1.0', END)
 
-        w = TokenText.get().split(" ")  # Obtiene: "id + id * id"
+        w = getRouteTAS()
+        n_w = getRouteTAS()  # Obtiene: oracion
         w.append("$") # w$
-
+        n_w.append("$") # n_w$
         pila = ["$"]
         pila.append(simboloInicial)
         ae = w[0] # apunta ae al primer simbolo de w$
@@ -76,6 +49,8 @@ def GUI():
                         i = i + 1
                         if X != "$":
                             ae = w[i]
+                            n_w.pop(0)
+                            print(n_w)
                     else:
                         CmpResult.insert(INSERT, "Error de sintáxis. x001"  + "\n")
                         break
@@ -86,7 +61,7 @@ def GUI():
                             for simbol in reversed(M[X][ae]):
                                 pila.append(simbol)
 
-                        CmpResult.insert(INSERT, X + "->" + "".join([str(elem) for elem in M[X][ae]])  + "\n")
+                        CmpResult.insert(INSERT, X + "->" + "".join([str(elem) for elem in M[X][ae] ]) + "\t\t\t\t\t\t" + " ".join([str(elem) for elem in pila ]) + "\t\t\t\t\t\t" + " ".join([str(elem) for elem in n_w ]) + "\n")                    
                     else:
                         CmpResult.insert(INSERT, "Error de sintáxis. x002"  + "\n")
                         break
@@ -95,7 +70,7 @@ def GUI():
 
     window = Tk()
     window.title('Analizador sintáctico | UCentral')
-    window.geometry('400x500')
+    window.geometry('1900x700')
     window['bg'] = "#F1F1F1"
 
     IntroLabel = Label(window,text="Bienvenido al programa para análisis de análisis sintáctico")
@@ -122,7 +97,7 @@ def GUI():
     TokenLabel = Label(window, text="Salida:")
     TokenLabel.place(x=30,y=200)
 
-    CmpResult = Text(window,width=30,height=12)
+    CmpResult = Text(window,width=230,height=25)
     CmpResult.place(x=30,y=230)
 
     window.mainloop()
